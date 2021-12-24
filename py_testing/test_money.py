@@ -1,4 +1,6 @@
 import unittest
+import operator
+import functools
 
 """
 1. Importing the unittest package, needed for the TestCase superclass '
@@ -29,9 +31,21 @@ class Money:
     
     def divide(self, divisor):
         return Money(self.amount / divisor, self.currency)
-    
+
     def __eq__(self, other):
         return self.amount == other.amount and self.currency == other.currency
+
+
+class Portfolio:
+    def __init__(self): 
+        self.moneys = []
+
+    def add(self, *moneys):
+        self.moneys.extend(moneys)
+    
+    def evaluate(self, currency): 
+        total = functools.reduce(operator.add, map(lambda m: m.amount, self.moneys), 0) 
+        return Money(total, currency)
 
 
 class TestMoney(unittest.TestCase): 
@@ -49,6 +63,20 @@ class TestMoney(unittest.TestCase):
         originalMoney = Money(4002, "KRW") 
         expectedMoneyAfterDivision = Money(1000.5, "KRW") 
         self.assertEqual(expectedMoneyAfterDivision,originalMoney.divide(4))
+
+    def testAddition(self):
+        """
+        1. We start with an empty Portfolio object.
+        2. We then Add multiple Money object stoth is Portfolio.
+        3. We ask the Portfolio to evaluate it self in aspec if iccurrency.
+        4. Finally,the result of the evaluation should be a Money object with the correct amount and currency.
+        """
+        fiveDollars = Money(5, "USD")
+        tenDollars = Money(10, "USD")
+        fifteenDollars = Money(15, "USD")
+        portfolio = Portfolio()
+        portfolio.add(fiveDollars, tenDollars) 
+        self.assertEqual(fifteenDollars, portfolio.evaluate("USD"))
 
 if __name__ == '__main__': 
     unittest.main()
