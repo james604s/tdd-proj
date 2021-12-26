@@ -1,6 +1,7 @@
 import unittest
 import operator
 import functools
+from unittest.main import main
 
 from money import Money
 from portfolio import Portfolio
@@ -55,6 +56,29 @@ class TestMoney(unittest.TestCase):
         expectedValue = Money(17, "USD")
         actualValue = portfolio.evaluate("USD")
         self.assertEqual(expectedValue, actualValue, "%s != %s"%(expectedValue, actualValue))
+    
+    def testAdditionOfDollarsAndWons(self):
+        oneDollar = Money(1, "USD")
+        elevenHundredWon = Money(1100, "KRW")
+        portfolio = Portfolio()
+        portfolio.add(oneDollar, elevenHundredWon)
+        expectedValue = Money(2200, "KRW")
+        actualValue = portfolio.evaluate("KRW")
+        self.assertEqual(expectedValue, actualValue, "%s != %s"%(expectedValue, actualValue))
+
+    def testAdditionWithMultipleMissingExchangeRates(self):
+        oneDollar = Money(1, "USD")
+        oneEuro = Money(1, "EUR")
+        oneWon = Money(1, "KRW")
+        portfolio = Portfolio()
+        portfolio.add(oneDollar, oneEuro, oneWon)
+        with self.assertRaisesRegex(
+            Exception,
+            "Missing exchange rate\(s\):\[USD\->Kalganid, EUR->Kalganid, KRW->Kalganid]",
+        ):
+            portfolio.evaluate("Kalganid")
+
+
 
 if __name__ == '__main__': 
     unittest.main()
